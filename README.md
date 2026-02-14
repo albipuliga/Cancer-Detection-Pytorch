@@ -105,7 +105,7 @@ After CV, a final model is trained on the full training set and evaluated on the
 
 <img src="src/outputs/assets/loss_per_fold.png" alt="Per-Fold Loss Curves" width="720">
 
-All five folds exhibit consistent convergence behavior, with early stopping triggering between epochs 39 and 68. Validation loss tracks closely with training loss throughout — and in some cases sits below it. This is expected when using dropout, which is active during training (making the task harder) but disabled during evaluation.
+All five folds exhibit consistent convergence behavior, with early stopping triggering between epochs 79 and 97. Validation loss tracks closely with training loss throughout — and in some cases sits below it. This is expected when using dropout, which is active during training (making the task harder) but disabled during evaluation.
 
 #### Averaged Train vs Validation Loss
 
@@ -119,41 +119,42 @@ The following metrics are loaded from `src/outputs/metrics.json`.
 
 | Metric               |  Value |
 | -------------------- | -----: |
-| Test Accuracy        | 0.9561 |
+| Test Accuracy        | 0.9649 |
 | Test Loss            | 0.1050 |
 | ROC AUC              | 0.9954 |
 | Average Precision    | 0.9934 |
-| Optimal Threshold    | 0.3292 |
 | 5-Fold Mean Accuracy | 0.9736 |
 | 5-Fold Accuracy Std  | 0.0112 |
 
 ## Clinical Interpretation
 
-In cancer screening, the costs of different error types are highly asymmetric. A **false negative** (malignant tumor classified as benign) can delay treatment with potentially life-threatening consequences, while a **false positive** (benign tumor flagged as malignant) leads to additional screening — inconvenient but not dangerous. The model's error profile reflects this priority: class weighting shifted the decision boundary so that 3 of the 4 errors are false positives, the clinically safer outcome.  
+In cancer screening, the costs of different error types are highly asymmetric. A **false negative** (malignant tumor classified as benign) can delay treatment with potentially life-threatening consequences, while a **false positive** (benign tumor flagged as malignant) leads to additional screening — inconvenient but not dangerous. The model's error profile shows 3 false positives (benign predicted as malignant) and 1 false negative (malignant predicted as benign).  
 
 ### Interpretation
 
 - **Discrimination quality is very strong** (AUC ~0.995), indicating excellent ranking between malignant and benign cases.
 - **Precision-recall behavior is also strong** (AP ~0.993), important for imbalanced medical classification settings.
 - **Generalization appears stable** with high CV mean accuracy and low fold-to-fold variance.
-- **Chosen threshold (~0.329)** suggests the decision boundary was optimized away from the default `0.5` for better operating performance in this setting.
+- **Decision boundary** uses the default threshold of `0.5` on predicted probabilities.
 
 ### Misclassification Analysis
 
-<img src="src/outputs/assets/misclassified_pca.png" alt="Misclassified Samples in PCA Space" width="720">
+<img src="src/outputs/assets/conf_matrix.png" alt="Confusion Matrix" width="720">
 
 Out of 114 test samples, the model misclassifies 4: 3 false positives (benign predicted as malignant) and 1 false negative (malignant predicted as benign).
 
 | Sample | Actual | Predicted | P(benign) | Confidence |
 |---|---|---|---|---|
-| 8 | Benign | Malignant | 0.111 | 88.9% |
-| 20 | Malignant | Benign | 0.960 | 96.0% |
-| 52 | Benign | Malignant | 0.177 | 82.4% |
-| 77 | Malignant | Benign | 0.928 | 92.8% |
+| 16 | Benign | Malignant | 0.251 | 74.9% |
+| 38 | Benign | Malignant | 0.200 | 80.0% |
+| 53 | Malignant | Benign | 0.874 | 87.4% |
+| 66 | Benign | Malignant | 0.350 | 65.0% |
+
+<img src="src/outputs/assets/misclassified_pca.png" alt="Misclassified Samples in PCA Space" width="720">
 
 When projected into PCA space, all misclassified samples fall in the overlap region between the two class clusters. These are genuinely ambiguous cases — tumors whose feature profiles sit at the boundary between malignant and benign — rather than systematic model failures.
 
-Notably, the false-negative cases (Samples 20 and 77) were classified with very high confidence (>92%), meaning these malignant tumors have feature profiles that closely resemble benign tissue.
+Notably, the false-negative case (Sample 53) was classified with high confidence (87.4%), meaning this malignant tumor has a feature profile that closely resembles benign tissue — the clinically most concerning type of error.
 
 ## Artifacts
 
@@ -170,7 +171,7 @@ Saved under `src/outputs/`:
 
 ```bash
 python3 -m venv .venv
-source venv/bin/activate
+source .venv/bin/activate
 ```
 
 ### 2) Install dependencies
