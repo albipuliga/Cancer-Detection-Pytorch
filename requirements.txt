@@ -1,0 +1,4 @@
+torch 
+jupyterlab 
+numpy 
+scikit-learn
