@@ -167,23 +167,16 @@ Saved under `src/outputs/`:
 
 ## Setup and Usage
 
-### 1) (Recommended) Create and activate a virtual environment
+### 1) Install dependencies
 
 ```bash
-python3 -m venv .venv
-source .venv/bin/activate
+uv sync
 ```
 
-### 2) Install dependencies
+### 2) Run the notebook
 
 ```bash
-pip install -r requirements.txt
-```
-
-### 3) Run the notebook
-
-```bash
-jupyter lab
+uv run jupyter lab
 ```
 
 Open `src/nn.ipynb` and execute all cells to reproduce training, evaluation, and output artifacts.
